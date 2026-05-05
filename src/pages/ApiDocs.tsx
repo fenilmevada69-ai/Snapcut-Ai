@@ -30,10 +30,10 @@ export function ApiDocs() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
         <aside className="lg:col-span-1 space-y-2 sticky top-24 h-fit">
           <h4 className="font-bold text-xs uppercase tracking-widest text-muted-foreground mb-4">Introduction</h4>
-          <a href="#auth" className="block text-sm text-primary hover:underline py-1">Authentication</a>
-          <a href="#endpoints" className="block text-sm text-muted-foreground hover:text-primary py-1">Endpoints</a>
-          <a href="#rate-limiting" className="block text-sm text-muted-foreground hover:text-primary py-1">Rate Limiting</a>
-          <a href="#errors" className="block text-sm text-muted-foreground hover:text-primary py-1">Error Codes</a>
+          <a href="#auth" onClick={(e) => { e.preventDefault(); document.getElementById('auth')?.scrollIntoView({ behavior: 'smooth' }); }} className="block text-sm text-primary hover:underline py-1">Authentication</a>
+          <a href="#endpoints" onClick={(e) => { e.preventDefault(); document.getElementById('endpoints')?.scrollIntoView({ behavior: 'smooth' }); }} className="block text-sm text-muted-foreground hover:text-primary py-1">Endpoints</a>
+          <a href="#rate-limiting" onClick={(e) => { e.preventDefault(); document.getElementById('rate-limiting')?.scrollIntoView({ behavior: 'smooth' }); }} className="block text-sm text-muted-foreground hover:text-primary py-1">Rate Limiting</a>
+          <a href="#errors" onClick={(e) => { e.preventDefault(); document.getElementById('errors')?.scrollIntoView({ behavior: 'smooth' }); }} className="block text-sm text-muted-foreground hover:text-primary py-1">Error Codes</a>
         </aside>
 
         <main className="lg:col-span-3 space-y-16">
@@ -87,6 +87,69 @@ export function ApiDocs() {
                   </Button>
                 </div>
               </div>
+            </div>
+          </section>
+
+          {/* Rate Limiting */}
+          <section id="rate-limiting" className="space-y-4">
+            <h2 className="text-2xl font-bold flex items-center gap-2">
+              <Globe className="w-5 h-5 text-primary" /> Rate Limiting
+            </h2>
+            <p className="text-muted-foreground leading-relaxed">
+              To ensure stability and fair use, our API is rate-limited based on your current subscription plan.
+              The limits are applied per API key.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <Card className="p-4 glass border-white/5">
+                <h4 className="font-bold mb-1">Free Plan</h4>
+                <p className="text-2xl font-display text-primary">60 <span className="text-sm text-muted-foreground font-sans">req / minute</span></p>
+              </Card>
+              <Card className="p-4 glass border-white/5">
+                <h4 className="font-bold mb-1">Pro Plan</h4>
+                <p className="text-2xl font-display text-primary">600 <span className="text-sm text-muted-foreground font-sans">req / minute</span></p>
+              </Card>
+            </div>
+          </section>
+
+          {/* Error Codes */}
+          <section id="errors" className="space-y-4">
+            <h2 className="text-2xl font-bold flex items-center gap-2">
+              <Terminal className="w-5 h-5 text-primary" /> Error Codes
+            </h2>
+            <p className="text-muted-foreground leading-relaxed">
+              We use standard HTTP status codes to indicate the success or failure of an API request.
+            </p>
+            <div className="rounded-2xl border border-white/10 overflow-hidden bg-black/40">
+              <table className="w-full text-sm text-left">
+                <thead className="bg-white/5 text-muted-foreground">
+                  <tr>
+                    <th className="px-4 py-3 font-bold">Code</th>
+                    <th className="px-4 py-3 font-bold">Meaning</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5 text-muted-foreground">
+                  <tr>
+                    <td className="px-4 py-3 font-mono text-white">200</td>
+                    <td className="px-4 py-3">OK - The request was successful.</td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-3 font-mono text-destructive">400</td>
+                    <td className="px-4 py-3">Bad Request - Invalid parameters or missing image data.</td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-3 font-mono text-destructive">401</td>
+                    <td className="px-4 py-3">Unauthorized - Invalid or missing API key.</td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-3 font-mono text-destructive">429</td>
+                    <td className="px-4 py-3">Too Many Requests - Rate limit exceeded.</td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-3 font-mono text-destructive">500</td>
+                    <td className="px-4 py-3">Server Error - Something went wrong on our end.</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </section>
 

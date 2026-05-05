@@ -155,12 +155,13 @@ export function UploadArea({ onComplete }: { onComplete: () => void }) {
   };
 
   return (
-    <Card className="p-10 border-dashed border border-white/10 bg-white/[0.01] flex flex-col items-center justify-center min-h-[400px] rounded-[32px]">
-      {!file ? (
-        <div 
-          {...getRootProps()} 
-          className={`w-full h-full flex flex-col items-center justify-center cursor-pointer transition-all duration-300 py-12 ${isDragActive ? 'bg-primary/5 scale-[0.99] border-primary/50' : 'hover:bg-white/[0.02]'}`}
-        >
+    <div className="relative p-[3px] rounded-[32px] bg-gradient-to-r from-cyan-400 via-indigo-500 to-blue-500 bg-[length:400%_400%] animate-[gradient-xy_2s_linear_infinite] overflow-hidden shadow-[0_0_40px_rgba(59,130,246,0.2)]">
+      <Card className="p-10 border-none bg-background flex flex-col items-center justify-center min-h-[400px] rounded-[30px]">
+        {!file ? (
+          <div 
+            {...getRootProps()} 
+            className={`w-full h-full flex flex-col items-center justify-center cursor-pointer transition-all duration-300 py-12 ${isDragActive ? 'bg-primary/5 scale-[0.99]' : 'hover:bg-white/[0.02]'}`}
+          >
           <input {...getInputProps()} />
           <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
             <Upload className="w-6 h-6 text-muted-foreground" />
@@ -216,5 +217,6 @@ export function UploadArea({ onComplete }: { onComplete: () => void }) {
         </div>
       )}
     </Card>
+    </div>
   );
 }
