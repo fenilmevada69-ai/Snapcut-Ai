@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/src/components/Logo';
 import { useAuthStore } from '@/src/store/authStore';
@@ -15,6 +15,16 @@ import { Coins, LogOut, Settings, User } from 'lucide-react';
 
 export function Navbar() {
   const { user, profile, signOut } = useAuthStore();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, hash: string) => {
+    if (location.pathname === '/') {
+      e.preventDefault();
+      document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth' });
+      window.history.pushState({}, '', `/#${hash}`);
+    }
+  };
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-white/5 glass">
@@ -24,8 +34,8 @@ export function Navbar() {
         </Link>
 
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
-          <Link to="/features" className="hover:text-primary transition-colors">Features</Link>
-          <Link to="/pricing" className="hover:text-primary transition-colors">Pricing</Link>
+          <Link to="/#features" onClick={(e) => handleNavClick(e, 'features')} className="hover:text-primary transition-colors">Features</Link>
+          <Link to="/#pricing" onClick={(e) => handleNavClick(e, 'pricing')} className="hover:text-primary transition-colors">Pricing</Link>
           <Link to="/api-docs" className="hover:text-primary transition-colors">API</Link>
         </div>
 

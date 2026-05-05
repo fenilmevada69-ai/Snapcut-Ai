@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Terminal, Copy, Key, Globe, ShieldCheck } from 'lucide-react';
@@ -15,6 +16,8 @@ export function ApiDocs() {
   -F "image=@/path/to/image.jpg" \\
   -F "format=png"`;
 
+  const [activeSection, setActiveSection] = useState('auth');
+
   return (
     <div className="container mx-auto px-4 py-24 max-w-5xl">
        <div className="flex flex-col md:flex-row gap-4 items-start mb-12">
@@ -30,10 +33,10 @@ export function ApiDocs() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
         <aside className="lg:col-span-1 space-y-2 sticky top-24 h-fit">
           <h4 className="font-bold text-xs uppercase tracking-widest text-muted-foreground mb-4">Introduction</h4>
-          <a href="#auth" onClick={(e) => { e.preventDefault(); document.getElementById('auth')?.scrollIntoView({ behavior: 'smooth' }); }} className="block text-sm text-primary hover:underline py-1">Authentication</a>
-          <a href="#endpoints" onClick={(e) => { e.preventDefault(); document.getElementById('endpoints')?.scrollIntoView({ behavior: 'smooth' }); }} className="block text-sm text-muted-foreground hover:text-primary py-1">Endpoints</a>
-          <a href="#rate-limiting" onClick={(e) => { e.preventDefault(); document.getElementById('rate-limiting')?.scrollIntoView({ behavior: 'smooth' }); }} className="block text-sm text-muted-foreground hover:text-primary py-1">Rate Limiting</a>
-          <a href="#errors" onClick={(e) => { e.preventDefault(); document.getElementById('errors')?.scrollIntoView({ behavior: 'smooth' }); }} className="block text-sm text-muted-foreground hover:text-primary py-1">Error Codes</a>
+          <a href="#auth" onClick={(e) => { e.preventDefault(); document.getElementById('auth')?.scrollIntoView({ behavior: 'smooth' }); setActiveSection('auth'); }} className={`block text-sm py-1 transition-colors ${activeSection === 'auth' ? 'text-primary font-bold' : 'text-muted-foreground hover:text-primary'}`}>Authentication</a>
+          <a href="#endpoints" onClick={(e) => { e.preventDefault(); document.getElementById('endpoints')?.scrollIntoView({ behavior: 'smooth' }); setActiveSection('endpoints'); }} className={`block text-sm py-1 transition-colors ${activeSection === 'endpoints' ? 'text-primary font-bold' : 'text-muted-foreground hover:text-primary'}`}>Endpoints</a>
+          <a href="#rate-limiting" onClick={(e) => { e.preventDefault(); document.getElementById('rate-limiting')?.scrollIntoView({ behavior: 'smooth' }); setActiveSection('rate-limiting'); }} className={`block text-sm py-1 transition-colors ${activeSection === 'rate-limiting' ? 'text-primary font-bold' : 'text-muted-foreground hover:text-primary'}`}>Rate Limiting</a>
+          <a href="#errors" onClick={(e) => { e.preventDefault(); document.getElementById('errors')?.scrollIntoView({ behavior: 'smooth' }); setActiveSection('errors'); }} className={`block text-sm py-1 transition-colors ${activeSection === 'errors' ? 'text-primary font-bold' : 'text-muted-foreground hover:text-primary'}`}>Error Codes</a>
         </aside>
 
         <main className="lg:col-span-3 space-y-16">

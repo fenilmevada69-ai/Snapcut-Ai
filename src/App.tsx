@@ -13,6 +13,40 @@ import { ApiDocs } from '@/src/pages/ApiDocs';
 import { supabase } from '@/src/services/supabase';
 import { useAuthStore } from '@/src/store/authStore';
 
+import { AnimatePresence, motion } from 'motion/react';
+import { useLocation } from 'react-router-dom';
+
+function AnimatedRoutes() {
+  const location = useLocation();
+
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<PageTransition><Landing /></PageTransition>} />
+        <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
+        <Route path="/register" element={<PageTransition><Register /></PageTransition>} />
+        <Route path="/pricing" element={<PageTransition><Pricing /></PageTransition>} />
+        <Route path="/api-docs" element={<PageTransition><ApiDocs /></PageTransition>} />
+        <Route path="/dashboard" element={<ProtectedRoute component={() => <PageTransition><Dashboard /></PageTransition>} />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </AnimatePresence>
+  );
+}
+
+function PageTransition({ children }: { children: React.ReactNode }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{ duration: 0.3 }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 export default function App() {
   const { setUser, setProfile, isLoading } = useAuthStore();
 
@@ -27,9 +61,7 @@ export default function App() {
       if (data) {
         setProfile(data as any);
       } else if (error && (error.code === 'PGRST116' || error.code === 'PGRST205')) {
-        // Table doesn't exist or no row exists. Try to create the row.
         let newProfile = null;
-        
         if (error.code === 'PGRST116') {
           const { data: insertedData } = await supabase
             .from('profiles')
@@ -42,11 +74,8 @@ export default function App() {
             })
             .select()
             .single();
-            
           newProfile = insertedData;
         }
-
-        // If insert failed (e.g. table doesn't exist PGRST205) or we couldn't insert, use local fallback
         if (!newProfile) {
           newProfile = {
             id: user.id,
@@ -56,7 +85,6 @@ export default function App() {
             subscription_status: 'free'
           };
         }
-        
         setProfile(newProfile as any);
       }
     } catch (e) {
@@ -65,7 +93,6 @@ export default function App() {
   };
 
   useEffect(() => {
-    // 1. Initial Session Check
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUser(session.user);
@@ -75,7 +102,6 @@ export default function App() {
       }
     });
 
-    // 2. Listen for Auth Changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -105,15 +131,7 @@ export default function App() {
         <div className="flex flex-col min-h-screen">
           <Navbar />
           <main className="flex-grow">
-            <Routes>
-              <Route path="/" element={<Landing />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/pricing" element={<Pricing />} />
-              <Route path="/api-docs" element={<ApiDocs />} />
-              <Route path="/dashboard" element={<ProtectedRoute component={Dashboard} />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
+            <AnimatedRoutes />
           </main>
           <Footer />
         </div>

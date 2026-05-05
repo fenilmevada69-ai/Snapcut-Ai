@@ -1,9 +1,19 @@
+import { useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, CheckCircle2, Shield, Zap, Sparkles, Image as ImageIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export function Landing() {
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash) {
+      setTimeout(() => {
+        document.getElementById(hash.replace('#', ''))?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+  }, []);
+
   return (
     <div className="space-y-32 pb-32">
       {/* Hero Section */}
@@ -74,7 +84,7 @@ export function Landing() {
       </section>
 
       {/* Features Grid */}
-      <section className="container mx-auto px-4">
+      <section id="features" className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-end gap-8 mb-20">
           <div className="max-w-xl">
             <h2 className="text-4xl md:text-5xl font-display font-bold mb-6 tracking-tight">Engineered for <br/>Scale and Speed.</h2>
@@ -124,7 +134,7 @@ export function Landing() {
       </section>
 
       {/* Pricing Section */}
-      <section className="container mx-auto px-4">
+      <section id="pricing" className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-display font-bold mb-4">Pricing that fits you.</h2>
         </div>
