@@ -13,7 +13,7 @@ export function UploadArea({ onComplete }: { onComplete: () => void }) {
   const [file, setFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
-  const { user } = useAuthStore();
+  const { user, profile, deductCredit } = useAuthStore();
 
   useEffect(() => {
     const handlePaste = (e: ClipboardEvent) => {
@@ -65,6 +65,11 @@ export function UploadArea({ onComplete }: { onComplete: () => void }) {
 
   const handleUpload = async () => {
     if (!file || !user) return;
+    
+    if (profile && profile.credits <= 0) {
+      toast.error("You don't have enough credits to process this image. Please upgrade your plan.");
+      return;
+    }
 
     setIsUploading(true);
     try {
@@ -91,6 +96,9 @@ export function UploadArea({ onComplete }: { onComplete: () => void }) {
         .from('uploads')
         .update({ original_url: originalUrl, status: 'processing' })
         .eq('id', uploadRecord.id);
+
+      // Deduct the credit now that the upload is processing successfully
+      await deductCredit();
 
       // 4. Trigger n8n Workflow
       const response = await triggerProcessingWorkflow({

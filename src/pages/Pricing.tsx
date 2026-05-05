@@ -61,7 +61,7 @@ export function Pricing() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
         {plans.map((plan, i) => (
-          <Card key={i} className={`p-8 glass flex flex-col h-full relative ${plan.popular ? 'border-primary/50 neon-blue' : 'border-white/5'}`}>
+          <Card key={i} className={`p-8 glass flex flex-col h-full relative overflow-visible ${plan.popular ? 'border-primary/50 glow-sm' : 'border-white/5'}`}>
             {plan.popular && (
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">
                 Most Popular
@@ -90,7 +90,7 @@ export function Pricing() {
             </ul>
 
             <Button 
-              className={`w-full h-12 font-bold ${plan.variant === 'default' ? 'bg-gradient-to-r from-primary to-accent neon-blue' : 'border-white/10 hover:bg-white/5'}`}
+              className={`w-full h-12 font-bold ${plan.variant === 'default' ? 'bg-primary hover:bg-primary/90 text-white glow-sm' : 'border-white/10 hover:bg-white/5'}`}
               variant={plan.variant as any}
             >
               {plan.cta}

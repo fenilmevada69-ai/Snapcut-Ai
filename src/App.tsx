@@ -16,19 +16,60 @@ import { useAuthStore } from '@/src/store/authStore';
 export default function App() {
   const { setUser, setProfile, isLoading } = useAuthStore();
 
+  const fetchProfile = async (user: any) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+        
+      if (data) {
+        setProfile(data as any);
+      } else if (error && (error.code === 'PGRST116' || error.code === 'PGRST205')) {
+        // Table doesn't exist or no row exists. Try to create the row.
+        let newProfile = null;
+        
+        if (error.code === 'PGRST116') {
+          const { data: insertedData } = await supabase
+            .from('profiles')
+            .insert({
+              id: user.id,
+              full_name: user.user_metadata?.full_name || user.email?.split('@')[0],
+              avatar_url: user.user_metadata?.avatar_url,
+              credits: 5,
+              subscription_status: 'free'
+            })
+            .select()
+            .single();
+            
+          newProfile = insertedData;
+        }
+
+        // If insert failed (e.g. table doesn't exist PGRST205) or we couldn't insert, use local fallback
+        if (!newProfile) {
+          newProfile = {
+            id: user.id,
+            full_name: user.user_metadata?.full_name || user.email?.split('@')[0],
+            avatar_url: user.user_metadata?.avatar_url,
+            credits: 5,
+            subscription_status: 'free'
+          };
+        }
+        
+        setProfile(newProfile as any);
+      }
+    } catch (e) {
+      console.error("Error fetching profile", e);
+    }
+  };
+
   useEffect(() => {
     // 1. Initial Session Check
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUser(session.user);
-        supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single()
-          .then(({ data }) => {
-            if (data) setProfile(data as any);
-          });
+        fetchProfile(session.user);
       } else {
         setUser(null);
       }
@@ -40,14 +81,7 @@ export default function App() {
     } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         setUser(session.user);
-        supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single()
-          .then(({ data }) => {
-            if (data) setProfile(data as any);
-          });
+        fetchProfile(session.user);
       } else {
         setUser(null);
         setProfile(null);

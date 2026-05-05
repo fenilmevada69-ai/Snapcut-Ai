@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import { UploadArea } from '@/src/components/dashboard/UploadArea';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { 
-  History, 
-  Download, 
-  Trash2, 
-  Search, 
-  ExternalLink, 
+import {
+  History,
+  Download,
+  Trash2,
+  Search,
+  ExternalLink,
   Clock,
   CheckCircle,
   AlertCircle,
@@ -26,7 +26,7 @@ export function Dashboard() {
 
   const fetchUploads = async () => {
     if (!user) return;
-    
+
     // 1. Fast load from local storage
     const localKey = `snapcut_uploads_${user.id}`;
     const localStr = localStorage.getItem(localKey);
@@ -42,7 +42,7 @@ export function Dashboard() {
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(20);
-    
+
     if (data) {
       // 3. Merge data: if local knows it's 'completed' but Supabase says 'processing', trust local.
       let mergedData = [...data] as UploadRecord[];
@@ -57,7 +57,7 @@ export function Dashboard() {
           return remoteItem;
         });
       }
-      
+
       setUploads(mergedData);
       localStorage.setItem(localKey, JSON.stringify(mergedData));
     }
@@ -66,13 +66,13 @@ export function Dashboard() {
 
   useEffect(() => {
     fetchUploads();
-    
+
     // Subscribe to changes
     const channel = supabase
       .channel('uploads_changes')
-      .on('postgres_changes', { 
-        event: '*', 
-        schema: 'public', 
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
         table: 'uploads',
         filter: `user_id=eq.${user?.id}`
       }, () => {
@@ -87,8 +87,27 @@ export function Dashboard() {
   }, [user]);
 
   const handleDelete = async (id: string) => {
-    await supabase.from('uploads').delete().eq('id', id);
-    toast.success('Record deleted');
+    try {
+      const { error } = await supabase.from('uploads').delete().eq('id', id);
+
+      if (error) throw error;
+
+      // Instantly update local state for snappy UI
+      setUploads(prev => prev.filter(item => item.id !== id));
+
+      // Update local storage so it doesn't reappear on reload before DB syncs
+      if (user) {
+        const localKey = `snapcut_uploads_${user.id}`;
+        const existingLocal = JSON.parse(localStorage.getItem(localKey) || '[]');
+        const updatedLocal = existingLocal.filter((item: any) => item.id !== id);
+        localStorage.setItem(localKey, JSON.stringify(updatedLocal));
+      }
+
+      toast.success('Record deleted successfully');
+    } catch (error: any) {
+      console.error('Delete error:', error);
+      toast.error('Failed to delete: ' + (error.message || 'Unknown error'));
+    }
   };
 
   return (
@@ -99,7 +118,7 @@ export function Dashboard() {
           <h1 className="text-4xl font-display font-bold mb-2 tracking-tight">Workspace</h1>
           <p className="text-muted-foreground">Manage and process your creative assets.</p>
         </div>
-        
+
         <div className="flex gap-3">
           <Card className="px-5 py-3 bg-white/[0.02] border-white/5 text-center min-w-[100px]">
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mb-1">Credits</p>
@@ -142,13 +161,13 @@ export function Dashboard() {
                 uploads.map((upload) => (
                   <Card key={upload.id} className="p-3 border-white/5 bg-white/[0.01] hover:bg-white/[0.03] flex items-center gap-4 transition-colors rounded-2xl group">
                     <div className="w-14 h-14 rounded-xl overflow-hidden bg-black/20 flex-shrink-0 border border-white/5">
-                      <img 
-                        src={upload.result_url || upload.original_url} 
-                        alt={upload.file_name} 
+                      <img
+                        src={upload.result_url || upload.original_url}
+                        alt={upload.file_name}
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    
+
                     <div className="flex-grow min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-semibold truncate text-sm">{upload.file_name}</span>
@@ -166,16 +185,16 @@ export function Dashboard() {
                     </div>
 
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                     {upload.result_url && (
+                      {upload.result_url && (
                         <a href={upload.result_url} download target="_blank" rel="noreferrer">
                           <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-primary">
                             <Download className="w-4 h-4" />
                           </Button>
                         </a>
                       )}
-                      <Button 
-                        size="icon" 
-                        variant="ghost" 
+                      <Button
+                        size="icon"
+                        variant="ghost"
                         className="h-8 w-8 text-muted-foreground hover:text-destructive"
                         onClick={() => handleDelete(upload.id)}
                       >
